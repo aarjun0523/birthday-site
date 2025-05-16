@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Happy Birthday, Happy!</title>
+
+  <!-- Fonts and Confetti -->
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather&family=Great+Vibes&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; padding: 0;
+      font-family: 'Merriweather', serif;
+      background: linear-gradient(135deg, #f8bbd0, #d1c4e9);
+      color: #4a148c;
+      display: flex; justify-content: center; align-items: center;
+      min-height: 100vh; text-align: center; padding: 20px;
+    }
+    h1, h2 { font-family: 'Brush Script MT', serif; font-size: xx-large; font-style: oblique; color: #7e57c2; }
+    h3 { font-family: 'Brush Script MT', serif; font-size: xx-large; font-style: oblique; color: rgb(50, 1, 9); }
+    h5 { font-family: Verdana, sans-serif; font-style: italic; font-size: large; color: #17023b; }
+    p {
+      font-family: 'Brush Script MT', cursive; font-size: x-large; line-height: 1.9;
+      color: #4a148c;
+    }
+    .step {
+      display: none; max-width: 700px; width: 90vw; padding: 40px 30px;
+      background: #ffe6f0cc; border-radius: 15px; border: 2px solid #b39ddb;
+    }
+    .active { display: block; }
+
+    .button {
+      background: #9575cd; color: #fff;
+      padding: 14px 32px; border: none; font-size: 1.1rem;
+      border-radius: 8px; cursor: pointer; margin: 10px 12px;
+      font-family: 'Merriweather', serif; font-weight: 600;
+    }
+    .button:hover { background-color: #b39ddb; }
+
+    #giftBox img {
+      max-width: 220px; border: 3px solid #b39ddb; border-radius: 12px; margin-top: 25px;
+    }
+    #cakeCanvas {
+      background-color: #f7e6f0; border-radius: 20px; margin: 25px auto 35px;
+      display: block; border: 2px solid #ce93d8;
+    }
+    #SpecialVideo {
+      height: 500px; max-width: 100%; border-radius: 10px;
+      margin: 20px auto 30px; display: block; border: 1px solid #b39ddb; background: #d1c4e9;
+    }
+    #envelopeContainer {
+      font-size: 70px; user-select: none; margin: 50px 0; cursor: pointer; color: #9575cd;
+    }
+    #envelopeContainer:hover { color: #7e57c2; }
+    #finalMessage {
+      font-size: 22px; max-width: 650px; color: #6a1b9a; line-height: 1.6;
+    }
+    #coverPage h1 { font-size: 52px; margin-bottom: 20px; }
+    #coverPage p { font-size: 24px; margin: 0 auto 45px; }
+    #musicToggle {
+      position: fixed; top: 20px; right: 20px; z-index: 999;
+    }
+
+    .fade-enter {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    .fade-enter-active {
+      opacity: 1;
+      transform: translateY(0);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+    @media (max-width: 768px) {
+      h1, #coverPage h1 { font-size: 36px; }
+      #envelopeContainer { font-size: 56px; }
+      #coverPage p, #finalMessage { font-size: 18px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Music -->
+  <audio id="bgMusic" loop>
+    <source src="your-music.mp3" type="audio/mpeg" />
+  </audio>
+  <button id="musicToggle" class="button">🔈</button>
+
+  <!-- Cover -->
+  <section id="coverPage" class="step active">
+    <h1>Welcome to Your Birthday Celebration!</h1>
+    <button id="startBtn" class="button">Start the Celebration 🎉</button>
+  </section>
+
+  <!-- Slide 1 -->
+  <section class="step">
+    <h1>Happy Birthday<h3>Kush!</h3></h1>
+    <p>"To the one who makes my heart skip a beat.<br>May your day be as wonderful as you are."</p>
+    <button class="button" onclick="nextStep()">Next</button>
+  </section>
+
+  <!-- Slide 2 - Gift -->
+  <section class="step">
+    <h2>Small Surprise Gift</h2>
+    <button onclick="revealGift(this)" class="button">Open</button>
+    <div id="giftBox" style="display:none;">
+      <img src="https://media.giphy.com/media/26BRuo6sLetdllPAQ/giphy.gif" alt="Gift" />
+      <p>A special surprise just for you! 💖</p>
+    </div>
+    <div>
+      <button class="button" onclick="prevStep()">Back</button>
+      <button class="button" onclick="nextStep()" id="giftNextBtn" style="display: none;">Next</button>
+    </div>
+  </section>
+
+  <!-- Slide 3 - Cake -->
+  <section class="step">
+    <h2>Birthday Cake & Candles</h2>
+    <canvas id="cakeCanvas" width="500" height="400"></canvas>
+    <div>
+      <button class="button" id="blowBtn" onclick="blowOutCandles()">Blow Out the Candles!</button>
+      <button class="button" id="cutBtn" onclick="cutCake()" style="display:none;">Cut the Cake!</button>
+    </div>
+    <div>
+      <button class="button" onclick="prevStep()">Back</button>
+      <button class="button" onclick="nextStep()" id="cakeNextBtn" style="display: none;">Next</button>
+    </div>
+  </section>
+
+  <!-- Slide 4 - Video -->
+  <section class="step">
+    <h2>A Special Birthday Video Just for You!</h2>
+    <video id="SpecialVideo" controls>
+      <source src="SpecialVideo.mp4" type="video/mp4" />
+    </video>
+    <div>
+      <button class="button" onclick="prevStep()">Back</button>
+      <button class="button" onclick="nextStep()">Next</button>
+    </div>
+  </section>
+
+  <!-- Slide 5 - Final Message -->
+  <section class="step">
+    <h2>Before Your Birthday Ends...</h2>
+    <div id="envelopeContainer" title="Click to open envelope">✉️</div>
+    <div id="finalMessage" style="display: none;">
+      <h5>
+      Happy Birthday to the one who means the <br>
+      world to me. <br>
+      I don't think I'll ever have <br>
+      the right words to fully express how much <br>
+      you mean to me-but I'll try anyway. <br>
+      <br>
+
+      Thank  you<br>
+      for showing up in my life and <br>
+      staying. For the laughter, the late-night talks, <br>
+      the silent understanding, and even the difficult conversations. <br>
+      Thank you for being real with me, for seeing me <br>
+      when I felt invisible, and for reminding me <br>
+      that I matter-even on the days I forget. <br>
+      <br>
+
+      You've been my calm in the chaos, my <br>
+      steady when everything else feels shaky. You've taught <br>
+      me that love doesn't always come with fireworks-it <br>
+      can also be quiet, patient, and steady. And <br>
+      that's exactly what you've been for me. <br>
+      <br>
+
+      You're not <br>
+      just someone I care about-you're the person who <br> 
+      changed the way I see the world, and myself. <br>
+      <br>
+
+      So today, I hope you feel just a <br>
+      fraction of the respect and care you've given me. <br>
+      You deserve that and so much more. I hope <br>
+      this year brings you peace, joy, and everything <br>
+      you've quietly wished for when no one was listening. <br>
+      <br>
+
+      Happy Birthday. I'm so lucky I get to <br>
+      say I know you. And even luckier that <br>
+      I get to be with you.
+      </h5>
+    </div>
+    <div>
+      <button class="button" onclick="prevStep()">Back</button>
+    </div>
+  </section>
+
+  <!-- Script -->
+  <script>
+    let currentStep = -1;
+    const steps = document.querySelectorAll('.step:not(#coverPage)');
+    const coverPage = document.getElementById('coverPage');
+    const bgMusic = document.getElementById('bgMusic');
+    const musicToggle = document.getElementById('musicToggle');
+    let isMuted = false;
+
+    document.getElementById('startBtn').addEventListener('click', () => {
+      bgMusic.play().catch(() => console.warn("Auto-play blocked"));
+      celebrate();
+      showStep(0);
+    });
+
+    musicToggle.addEventListener('click', () => {
+      isMuted = !isMuted;
+      bgMusic.muted = isMuted;
+      musicToggle.textContent = isMuted ? '🔇' : '🔈';
+    });
+
+    function showStep(index) {
+      const oldStep = document.querySelector('.step.active');
+      if (oldStep) oldStep.classList.remove('active');
+      if (index === -1) {
+        coverPage.style.display = 'block';
+        currentStep = -1;
+      } else {
+        coverPage.style.display = 'none';
+        const newStep = steps[index];
+        newStep.classList.add('fade-enter');
+        newStep.classList.add('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        requestAnimationFrame(() => {
+          newStep.classList.add('fade-enter-active');
+          newStep.classList.remove('fade-enter');
+        });
+        currentStep = index;
+      }
+    }
+
+    function nextStep() {
+      if (currentStep < steps.length - 1) showStep(currentStep + 1);
+    }
+
+    function prevStep() {
+      if (currentStep > 0) showStep(currentStep - 1);
+      else if (currentStep === 0) showStep(-1);
+    }
+
+    function revealGift(btn) {
+      document.getElementById('giftBox').style.display = 'block';
+      btn.style.display = 'none';
+      document.getElementById('giftNextBtn').style.display = 'inline-block';
+      celebrate();
+    }
+
+    document.getElementById('envelopeContainer').addEventListener('click', () => {
+      document.getElementById('envelopeContainer').style.display = 'none';
+      document.getElementById('finalMessage').style.display = 'block';
+      celebrate();
+    });
+
+    function celebrate() {
+      const duration = 2 * 1000;
+      const end = Date.now() + duration;
+      (function frame() {
+        confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 } });
+        confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 } });
+        if (Date.now() < end) requestAnimationFrame(frame);
+      })();
+    }
+
+    // Cake logic
+    const cakeCanvas = document.getElementById('cakeCanvas');
+    const cctx = cakeCanvas.getContext('2d');
+    let flamesVisible = true;
+    let cakeCut = false;
+
+    function drawCake() {
+      cctx.clearRect(0, 0, cakeCanvas.width, cakeCanvas.height);
+      let gradient = cctx.createLinearGradient(100, 250, 400, 350);
+      gradient.addColorStop(0, '#6f4e37');
+      gradient.addColorStop(1, '#3e2723');
+      cctx.fillStyle = gradient;
+      cctx.fillRect(100, 250, 300, 100);
+
+      cctx.fillStyle = '#f8bbd0';
+      cctx.beginPath();
+      cctx.moveTo(100, 250);
+      cctx.bezierCurveTo(150, 210, 250, 280, 400, 250);
+      cctx.lineTo(400, 240);
+      cctx.lineTo(100, 240);
+      cctx.closePath();
+      cctx.fill();
+
+      for (let i = 0; i < 5; i++) {
+        const x = 140 + i * 50;
+        cctx.fillStyle = '#ffd700';
+        cctx.fillRect(x, 190, 10, 60);
+        if (flamesVisible) {
+          cctx.beginPath();
+          cctx.fillStyle = '#ffec8b';
+          cctx.arc(x + 5, 180, 7, 0, Math.PI * 2);
+          cctx.fill();
+        } else {
+          cctx.beginPath();
+          cctx.fillStyle = 'rgba(200,200,180,0.5)';
+          cctx.arc(x + 5, 180, 5, 0, Math.PI * 2);
+          cctx.fill();
+        }
+      }
+
+      if (cakeCut) {
+        let cutGradient = cctx.createLinearGradient(250, 250, 280, 350);
+        cutGradient.addColorStop(0, 'rgba(205, 133, 63, 0.6)');
+        cutGradient.addColorStop(1, 'rgba(139, 69, 19, 0.9)');
+        cctx.fillStyle = cutGradient;
+        cctx.fillRect(250, 250, 30, 100);
+      }
+    }
+
+    function animateCake() {
+      drawCake();
+      if (flamesVisible || !cakeCut) requestAnimationFrame(animateCake);
+    }
+
+    function blowOutCandles() {
+      flamesVisible = false;
+      document.getElementById('blowBtn').style.display = 'none';
+      document.getElementById('cutBtn').style.display = 'inline-block';
+      celebrate();
+    }
+
+    function cutCake() {
+      cakeCut = true;
+      document.getElementById('cutBtn').style.display = 'none';
+      document.getElementById('cakeNextBtn').style.display = 'inline-block';
+      celebrate();
+    }
+
+    animateCake();
+  </script>
+</body>
+</html>
