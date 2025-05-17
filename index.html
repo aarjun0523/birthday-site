@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -192,7 +192,7 @@
 
   <!-- Music -->
   <audio id="bgMusic" loop>
-    <source src="your-music.mp3" type="audio/mpeg" />
+    <source src="HappyBirthday.mp3" type="audio/mpeg" />
   </audio>
   <button id="musicToggle" class="button">🔈</button>
 
@@ -215,7 +215,7 @@
     <h2>Small Surprise Gift</h2>
     <button onclick="revealGift(this)" class="button">Open</button>
     <div id="giftBox" style="display:none;">
-      <img src="https://media.giphy.com/media/26BRuo6sLetdllPAQ/giphy.gif" alt="Gift" />
+      <img src="Surprise.jpg" alt="Gift" />
       <p>A special surprise just for you! 💖</p>
     </div>
     <div>
@@ -229,9 +229,11 @@
     <h2>Birthday Cake & Candles</h2>
     <canvas id="cakeCanvas"></canvas>
     <div>
+      <button class="button" onclick="showStep(1)">Back</button>
       <button class="button" id="blowBtn" onclick="blowOutCandles()">Blow Out the Candles!</button>
       <button class="button" id="cutBtn" onclick="cutCake()" style="display:none;">Cut the Cake!</button>
       <button class="button" onclick="nextStep()" id="cakeNextBtn" style="display:none;">Next</button>
+      
     </div>
   </section>
 
@@ -319,25 +321,28 @@
     });
 
     function showStep(index) {
-      // Hide cover page if not -1
-      if (index === -1) {
-        coverPage.classList.add('active');
-      } else {
-        coverPage.classList.remove('active');
-      }
+  if (index === -1) {
+    coverPage.classList.add('active');
+  } else {
+    coverPage.classList.remove('active');
+  }
 
-      // Hide current active step
-      const oldStep = document.querySelector('.step.active:not(#coverPage)');
-      if (oldStep) oldStep.classList.remove('active');
+  const oldStep = document.querySelector('.step.active:not(#coverPage)');
+  if (oldStep) oldStep.classList.remove('active');
 
-      // Show new step if not cover page
-      if (index >= 0 && index < steps.length) {
-        steps[index].classList.add('active');
-      }
+  if (index >= 0 && index < steps.length) {
+    steps[index].classList.add('active');
 
-      currentStep = index;
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+    // 🎂 Draw cake only when we reach the cake slide
+    if (index === 2) {
+      setTimeout(drawCake, 100); // delay ensures canvas is visible and sized
     }
+  }
+
+  currentStep = index;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
 
     function nextStep() {
       if (currentStep < steps.length - 1) {
